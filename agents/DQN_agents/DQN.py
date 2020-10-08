@@ -37,6 +37,15 @@ class DQN(Base_Agent):
             self.global_step_number += 1
         self.episode_number += 1
 
+    def step_pretrained(self):
+        """Runs a step within a rendered game according pretrained policy"""
+        while not self.done:
+            self.action = self.pick_action()
+            self.conduct_action(self.action, render=True)
+            self.state = self.next_state
+        self.episode_number += 1
+        return self.total_episode_score_so_far
+
     def pick_action(self, state=None):
         """Uses the local Q network and an epsilon greedy policy to pick an action"""
         # PyTorch only accepts mini-batches and not single observations so we have to use unsqueeze to add
@@ -98,6 +107,14 @@ class DQN(Base_Agent):
     def locally_save_policy(self):
         """Saves the policy"""
         torch.save(self.q_network_local.state_dict(), "Models/{}_local_network.pt".format(self.agent_name))
+
+    def locally_load_policy(self, path, gpu_available=False):
+        """Loads the policy"""
+        if gpu_available:
+            self.q_network_local.load_state_dict(torch.load(path))
+        else:
+            self.q_network_local.load_state_dict(torch.load(path, map_location=torch.device('cpu')))
+
 
     def time_for_q_network_to_learn(self):
         """Returns boolean indicating whether enough steps have been taken for learning to begin and there are

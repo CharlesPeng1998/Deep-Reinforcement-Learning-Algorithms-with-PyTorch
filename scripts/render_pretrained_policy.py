@@ -20,19 +20,9 @@ from agents.DQN_agents.DQN_With_Fixed_Q_Targets import DQN_With_Fixed_Q_Targets
 config = Config()
 config.seed = 1
 config.environment = gym.make("CartPole-v0")
-config.num_episodes_to_run = 70
-config.file_to_save_data_results = "results/data_and_graphs/Cart_Pole_Results_Data.pkl"
-config.file_to_save_results_graph = "results/data_and_graphs/Cart_Pole_Results_Graph.png"
-config.show_solution_score = False
-config.visualise_individual_results = False
-config.visualise_overall_agent_results = True
-config.standard_deviation_results = 1.0
-config.runs_per_agent = 1
+config.num_episodes_to_run = 10
 config.use_GPU = False
-config.overwrite_existing_results_file = True
 config.randomise_random_seed = True
-config.save_model = False
-
 
 config.hyperparameters = {
     "DQN_Agents": {
@@ -135,11 +125,10 @@ config.hyperparameters = {
 }
 
 if __name__ == "__main__":
-    # AGENTS = [SAC_Discrete, DDQN, Dueling_DDQN, DQN, DQN_With_Fixed_Q_Targets,
-    #           DDQN_With_Prioritised_Experience_Replay, A2C, PPO, A3C ]
     AGENTS = [DQN]
     trainer = Trainer(config, AGENTS)
-    trainer.run_games_for_agents()
+    trainer.render_games_for_pretrained_agent(DQN, 'Models\\DQN_local_network.pt', False)
+
 
 
 

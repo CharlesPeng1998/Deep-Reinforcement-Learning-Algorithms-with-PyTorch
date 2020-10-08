@@ -7,6 +7,7 @@ from gym import wrappers
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class Trainer(object):
     """Runs games for given agents. Optionally will visualise and save the results"""
     def __init__(self, config, agents):
@@ -106,7 +107,8 @@ class Trainer(object):
                 agent_config.environment = gym.wrappers.FlattenDictWrapper(agent_config.environment,
                                                                            dict_keys=["observation", "desired_goal"])
 
-            if self.config.randomise_random_seed: agent_config.seed = random.randint(0, 2**32 - 2)
+            if self.config.randomise_random_seed:
+                agent_config.seed = random.randint(0, 2**32 - 2)
             agent_config.hyperparameters = agent_config.hyperparameters[agent_group]
             print("AGENT NAME: {}".format(agent_name))
             print("\033[1m" + "{}.{}: {}".format(agent_number, agent_round, agent_name) + "\033[0m", flush=True)
@@ -123,6 +125,21 @@ class Trainer(object):
                 plt.show()
             agent_round += 1
         self.results[agent_name] = agent_results
+
+    def render_games_for_pretrained_agent(self, agent_class, pretrained_model_path, gpu_available=False):
+        """Render environment and run agent with pretrained-policy"""
+        agent_name = agent_class.agent_name
+        agent_group = self.agent_to_agent_group[agent_name]
+        agent_config = copy.deepcopy(self.config)
+        if self.config.randomise_random_seed:
+            agent_config.seed = random.randint(0, 2 ** 32 - 2)
+        agent_config.hyperparameters = agent_config.hyperparameters[agent_group]
+        agent = agent_class(agent_config)
+        self.environment_name = agent.environment_title
+        agent.locally_load_policy(pretrained_model_path, gpu_available)
+        episode_scores = agent.run_n_pretrained_episodes()
+        for i, score in enumerate(episode_scores):
+            print("Game Scores of Ep{}: {}".format(i, score))
 
     def environment_has_changeable_goals(self, env):
         """Determines whether environment is such that for each episode there is a different goal or not"""

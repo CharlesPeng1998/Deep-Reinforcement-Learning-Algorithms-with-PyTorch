@@ -49,6 +49,9 @@ class Base_Agent(object):
         """Takes a step in the game. This method must be overriden by any agent"""
         raise ValueError("Step needs to be implemented by the agent")
 
+    def step_pretrained(self):
+        raise ValueError("Step_pretrained needs to be implemented by the agent")
+
     def get_environment_title(self):
         """Extracts name of environment from it"""
         try:
@@ -193,12 +196,24 @@ class Base_Agent(object):
         if self.config.save_model: self.locally_save_policy()
         return self.game_full_episode_scores, self.rolling_results, time_taken
 
-    def conduct_action(self, action):
+    def run_n_pretrained_episodes(self, num_episodes=None):
+        if num_episodes is None:
+            num_episodes = self.config.num_episodes_to_run
+        episode_scores = list()
+        while self.episode_number < num_episodes:
+            self.reset_game()
+            scores = self.step_pretrained()
+            episode_scores.append(scores)
+        self.environment.close()
+        return episode_scores
+
+    def conduct_action(self, action, render=False):
         """Conducts an action in the environment"""
+        if render:
+            self.environment.render()
         self.next_state, self.reward, self.done, _ = self.environment.step(action)
         self.total_episode_score_so_far += self.reward
         if self.hyperparameters["clip_rewards"]: self.reward =  max(min(self.reward, 1.0), -1.0)
-
 
     def save_and_print_result(self):
         """Saves and prints results of the game"""
