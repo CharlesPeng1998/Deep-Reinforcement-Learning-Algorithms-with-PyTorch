@@ -127,11 +127,4 @@ config.hyperparameters = {
 if __name__ == "__main__":
     AGENTS = [DQN]
     trainer = Trainer(config, AGENTS)
-    trainer.render_games_for_pretrained_agent(DQN, 'Models\\DQN_local_network.pt', False)
-
-
-
-
-
-
-
+    trainer.render_games_for_pretrained_agent(DQN, 'Models/DQN_local_network.pt', False)
